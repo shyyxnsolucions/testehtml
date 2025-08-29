@@ -1,0 +1,22 @@
+/* Additional responsive styling */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .elementor-section {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
