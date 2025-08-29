@@ -1,0 +1,28 @@
+/* Base responsive styles */
+* {
+  box-sizing: border-box;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+}
