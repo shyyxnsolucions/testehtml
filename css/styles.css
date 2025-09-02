@@ -40,9 +40,10 @@ body{
 .bullets{margin:18px 0 6px; padding-left:18px}
 .bullets li{margin:6px 0}
 .hero__media{display:flex;align-items:center;justify-content:center}
-.hero__media img{max-width:100%;height:auto;filter:drop-shadow(0 40px 60px rgba(0,0,0,.5))}
+.hero__media img{max-width:100%;height:auto;border-radius:24px;filter:drop-shadow(0 40px 60px rgba(0,0,0,.5))}
 .badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-.badges span{border:1px solid #1d1f25;border-radius:999px;padding:6px 10px;color:var(--muted);font-size:.9rem}
+.badges span{display:inline-flex;align-items:center;gap:6px;border:1px solid #1d1f25;border-radius:999px;padding:6px 10px;color:var(--muted);font-size:.9rem}
+.badges img{width:24px;height:24px}
 
 .social-proof{padding:12px 0 24px;border-top:1px solid #14161a;border-bottom:1px solid #14161a;color:var(--muted);text-align:center}
 
@@ -61,7 +62,8 @@ body{
 .carousel__btn{position:absolute;top:50%;transform:translateY(-50%);background:#0e0f12;border:1px solid #1b1c20;color:var(--text);width:36px;height:36px;border-radius:10px;cursor:pointer}
 .carousel__btn.prev{left:-6px}
 .carousel__btn.next{right:-6px}
-.review{min-width:70%;background:#101115;border:1px solid #1b1c20;border-radius:16px;padding:20px}
+.review{min-width:70%;background:#101115;border:1px solid #1b1c20;border-radius:16px;padding:20px;text-align:center}
+.review .avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;margin-bottom:12px}
 @media (min-width:980px){.review{min-width:33%}}
 
 .how-to{padding:56px 0;border-top:1px solid #14161a}
