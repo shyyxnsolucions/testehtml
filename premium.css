@@ -1,0 +1,32 @@
+:root {
+  --gold: #d4af37;
+  --dark-bg: #111;
+  --light-text: #f5f5f5;
+}
+
+body {
+  background: var(--dark-bg) !important;
+  color: var(--light-text) !important;
+}
+
+a, h1, h2, h3, h4, h5, h6 {
+  color: var(--gold) !important;
+}
+
+button, .btn {
+  background: var(--gold) !important;
+  color: var(--dark-bg) !important;
+}
+
+section {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
