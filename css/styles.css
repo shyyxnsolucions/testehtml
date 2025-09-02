@@ -25,8 +25,10 @@ body{
 .btn--xl{padding:16px 22px;font-size:1.05rem}
 .btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgb(205 164 82 / 18%)}
 
-.header{position:sticky;top:0;z-index:40;background:rgba(9,10,11,.6);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid #1b1c20}
-.header .container{display:flex;align-items:center;gap:22px;padding:14px 0}
+.header{position:sticky;top:0;z-index:40;background:rgba(9,10,11,.6);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid #1b1c20;transition:background .3s ease}
+.header.is-scrolled{background:rgba(9,10,11,.9)}
+.header .container{display:flex;align-items:center;gap:22px;padding:14px 0;transition:padding .3s ease}
+.header.is-scrolled .container{padding:8px 0}
 .brand{display:inline-flex;align-items:center}
 .nav{display:flex;gap:18px;margin-left:auto}
 .nav a{color:var(--muted);text-decoration:none}
@@ -61,7 +63,9 @@ body{
 .carousel__btn{position:absolute;top:50%;transform:translateY(-50%);background:#0e0f12;border:1px solid #1b1c20;color:var(--text);width:36px;height:36px;border-radius:10px;cursor:pointer}
 .carousel__btn.prev{left:-6px}
 .carousel__btn.next{right:-6px}
-.review{min-width:70%;background:#101115;border:1px solid #1b1c20;border-radius:16px;padding:20px}
+.review{min-width:70%;background:#101115;border:1px solid #1b1c20;border-radius:16px;padding:20px;display:flex;flex-direction:column;align-items:flex-start}
+.review .avatar{width:56px;height:56px;border-radius:50%;margin-bottom:12px}
+.review footer{margin-top:12px;font-weight:600;color:var(--accent)}
 @media (min-width:980px){.review{min-width:33%}}
 
 .how-to{padding:56px 0;border-top:1px solid #14161a}
@@ -70,6 +74,7 @@ body{
 
 .offer{padding:56px 0;border-top:1px solid #14161a}
 .plan{background:linear-gradient(180deg,#14151a,#0f1114);border:1px solid #202228;border-radius:18px;padding:24px;text-align:center}
+.plan__img{max-width:100px;height:auto;margin:0 auto 12px}
 .plan .price{font-size:1.6rem;margin:12px 0}
 .plan.best{outline:2px solid var(--accent)}
 .save{color:var(--success);font-weight:600}
