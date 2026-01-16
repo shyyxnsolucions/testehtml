@@ -449,6 +449,48 @@ img {
   color: #fff;
 }
 
+.tools-hero {
+  padding: 40px 0 24px;
+  background: #fff;
+}
+
+.tools-hero h1 {
+  margin: 0 0 8px;
+}
+
+.tools-grid {
+  padding: 24px 0 56px;
+}
+
+.tool-card {
+  background: var(--card);
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  display: grid;
+}
+
+.tool-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  background: #eef1fb;
+}
+
+.tool-card__body {
+  padding: 18px 20px 22px;
+}
+
+.tool-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
 .support__links {
   display: grid;
   gap: 10px;
