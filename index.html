@@ -1,237 +1,288 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" translate="no">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>LUMINE • Sérum Facial Premium | Luminosidade, Firmeza e Hidratação</title>
-  <meta name="description" content="LUMINE é um sérum facial de alto desempenho com ativos clínicos para luminosidade, firmeza e hidratação intensa. Dermatologicamente testado. Frete rápido.">
-  <meta name="theme-color" content="#0b0b0c">
+  <title>SupraUnlock - Soluções e ferramentas para desbloqueio</title>
+  <meta name="description" content="SupraUnlock oferece vendas, ativações e alugueis de ferramentas para soluções de segurança em smartphones. Samsung, Motorola, Xiaomi, Apple e mais.">
+  <meta name="theme-color" content="#7a0b0b">
 
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
-
-  <meta property="og:type" content="product">
-  <meta property="og:title" content="LUMINE • Sérum Facial Premium">
-  <meta property="og:description" content="Luminosidade, firmeza e hidratação intensa. Dermatologicamente testado.">
-  <meta property="og:image" content="img/lumine-serum.png">
-  <meta property="og:site_name" content="LUMINE">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="LUMINE • Sérum Facial Premium">
-  <meta name="twitter:description" content="Sérum de alto desempenho com ativos clínicos.">
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": "LUMINE Sérum Facial Premium",
-    "image": ["img/lumine-serum.png"],
-    "description": "Sérum facial com complexo antioxidante, peptídeos e ácido hialurônico para luminosidade, firmeza e hidratação.",
-    "brand": {"@type": "Brand", "name": "LUMINE"},
-    "sku": "LUM-30ML",
-    "offers": {
-      "@type": "Offer",
-      "url": "#comprar",
-      "priceCurrency": "BRL",
-      "price": "149.90",
-      "availability": "https://schema.org/InStock"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "1287"
-    }
-  }
-  </script>
 </head>
 <body>
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <div class="topbar__contact">
+        <span class="pill">📞 Contact us</span>
+        <div class="topbar__links">
+          <a href="https://wa.me/5516988102134" target="_blank" rel="noreferrer">Whatsapp</a>
+          <a href="https://t.me/dhmfchannel" target="_blank" rel="noreferrer">Telegram</a>
+          <a href="https://www.facebook.com/dhmfsoftwareofcl" target="_blank" rel="noreferrer">Facebook</a>
+        </div>
+      </div>
+      <div class="topbar__currency">
+        <button class="currency" type="button" data-currency-toggle>
+          $ USD <span>▾</span>
+        </button>
+        <div class="currency__menu" data-currency-menu>
+          <button type="button">R$ BRL</button>
+          <button type="button">$ USD</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <header class="header" data-header>
-    <div class="container">
-      <a href="#inicio" class="brand" aria-label="LUMINE Início">
-        <img src="assets/logo.svg" alt="LUMINE" width="124" height="28" loading="eager">
+    <div class="container header__inner">
+      <button class="menu-toggle" aria-expanded="false" aria-controls="main-menu" aria-label="Abrir menu" data-menu-toggle>☰</button>
+      <a class="logo" href="#inicio">
+        <span class="logo__mark">Supra</span>
+        <span class="logo__sub">Unlock</span>
       </a>
-      <nav class="nav" aria-label="Principal">
-        <a href="#beneficios">Benefícios</a>
-        <a href="#composicao">Fórmula</a>
-        <a href="#como-usar">Como usar</a>
-        <a href="#depoimentos">Resultados</a>
-        <a href="#faq">FAQ</a>
+      <nav class="nav" id="main-menu" data-menu>
+        <a href="#inicio">🏠 Inicio</a>
+        <a href="#imei">🔏 IMEI SN ECID</a>
+        <a href="#ferramentas">🧰 Ferramentas</a>
+        <a href="#aluguel">🔑 Aluguel e Remoto</a>
+        <a href="#creditos">💳 Créditos</a>
+        <a href="#suporte">📋 Suporte</a>
       </nav>
-      <a class="btn btn--primary" href="#oferta" data-cta>Comprar agora</a>
-      <button class="nav__toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu">☰</button>
+      <button class="btn btn--primary">Login/Register</button>
     </div>
   </header>
 
   <main id="inicio">
     <section class="hero">
-      <div class="container grid grid--2">
-        <div class="hero__copy">
-          <h1>Radiância visível em 7 dias com o sérum clínico LUMINE</h1>
-          <p>Fórmula de alta performance com complexo antioxidante, peptídeos firmadores e ácido hialurônico de três pesos moleculares.</p>
-          <ul class="bullets">
-            <li>Ilumina e uniformiza o tom</li>
-            <li>Melhora a firmeza e elasticidade</li>
-            <li>Hidratação inteligente 24h</li>
-          </ul>
-          <div class="hero__cta">
-            <a class="btn btn--primary btn--xl" href="#oferta" data-cta>Quero minha pele luminosa</a>
-            <p class="sub">Frete rápido • 30 dias de garantia</p>
-          </div>
-          <div class="badges" role="group" aria-label="Selos de confiança">
-            <span>Dermatologicamente testado</span>
-            <span>Vegano</span>
-            <span>Sem parabenos</span>
-          </div>
-        </div>
-        <figure class="hero__media">
-          <img src="img/placeholder.svg" alt="Frasco do Sérum LUMINE" width="560" height="640" loading="eager">
-        </figure>
-      </div>
-    </section>
-
-    <section class="social-proof">
       <div class="container">
-        <p><strong>4.9/5</strong> baseado em <strong>1.287 avaliações</strong> reais</p>
-        <div class="logos">
-          <span>★ ★ ★ ★ ★</span>
-          <span>Resultados clinicamente observados</span>
+        <div class="carousel" data-carousel>
+          <div class="carousel__track">
+            <article class="slide slide--primary">
+              <div class="slide__content">
+                <span class="badge">PIX e cartão</span>
+                <h1>Central de ativações e alugueis para técnicos e assistências</h1>
+                <p>Ferramentas oficiais, entregas instantâneas e suporte dedicado para os principais modelos do mercado SupraUnlock.</p>
+                <div class="slide__actions">
+                  <button class="btn btn--light">Ver serviços</button>
+                  <button class="btn btn--ghost">Criar conta</button>
+                </div>
+              </div>
+              <div class="slide__media" aria-hidden="true">
+                <div class="device-card">Xiaomi • Samsung • Apple</div>
+              </div>
+            </article>
+            <article class="slide slide--secondary">
+              <div class="slide__content">
+                <span class="badge">Ferramentas oficiais</span>
+                <h2>Desbloqueios e soluções de segurança com API automática</h2>
+                <p>Envio de solicitações com processamento rápido e controle total do status.</p>
+                <div class="slide__actions">
+                  <button class="btn btn--light">Catálogo</button>
+                </div>
+              </div>
+              <div class="slide__media" aria-hidden="true">
+                <div class="device-card">APIs ativas 24/7</div>
+              </div>
+            </article>
+            <article class="slide slide--tertiary">
+              <div class="slide__content">
+                <span class="badge">Aluguel remoto</span>
+                <h2>Alugue ferramentas premium por hora ou por dia</h2>
+                <p>Logins dedicados, suporte guiado e documentação para desbloqueios avançados.</p>
+                <div class="slide__actions">
+                  <button class="btn btn--light">Ver planos</button>
+                </div>
+              </div>
+              <div class="slide__media" aria-hidden="true">
+                <div class="device-card">Suporte técnico ao vivo</div>
+              </div>
+            </article>
+          </div>
+          <div class="carousel__controls">
+            <button class="carousel__btn" data-carousel-prev aria-label="Anterior">‹</button>
+            <button class="carousel__btn" data-carousel-next aria-label="Próximo">›</button>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="beneficios" class="benefits">
+    <section class="highlights" id="imei">
       <div class="container grid grid--3">
-        <article class="card">
-          <h3>Luminosidade imediata</h3>
-          <p>Complexo de vitamina C estabilizada e niacinamida para brilho instantâneo e redução de manchas ao longo do uso.</p>
+        <article class="highlight-card">
+          <div class="highlight-card__media">SUPRAUNLOCK</div>
+          <h3>FRP Xiaomi • Conta Nova</h3>
+          <p>API automática com entrega instantânea para criação de conta e desbloqueio rápido.</p>
+          <div class="highlight-card__meta">
+            <span class="tag">Instant</span>
+            <button class="btn btn--outline">Acessar</button>
+          </div>
         </article>
-        <article class="card">
-          <h3>Firmeza e preenchimento</h3>
-          <p>Peptídeos biomiméticos estimulam colágeno e elastina, enquanto o ácido hialurônico multi pesos preenche linhas finas.</p>
+        <article class="highlight-card">
+          <div class="highlight-card__media">RAMDISK</div>
+          <h3>Ramdisk Tool • Bypass com rede</h3>
+          <p>Ferramenta compatível com dispositivos iOS para reset e remoção de senha.</p>
+          <div class="highlight-card__meta">
+            <span class="tag">Instant</span>
+            <button class="btn btn--outline">Acessar</button>
+          </div>
         </article>
-        <article class="card">
-          <h3>Barreira fortalecida</h3>
-          <p>Ceramidas e pantenol restauram a barreira cutânea reduzindo sensibilidade e mantendo hidratação por 24 horas.</p>
+        <article class="highlight-card">
+          <div class="highlight-card__media">PRIVATE</div>
+          <h3>Private Xiaomi FRP</h3>
+          <p>Receba usuário e senha aleatórios com processamento seguro e privado.</p>
+          <div class="highlight-card__meta">
+            <span class="tag">API</span>
+            <button class="btn btn--outline">Acessar</button>
+          </div>
         </article>
       </div>
     </section>
 
-    <section id="composicao" class="ingredients">
+    <section class="services" id="ferramentas">
+      <div class="container">
+        <div class="section-title">
+          <h2>Ferramentas em destaque</h2>
+          <p>As soluções mais procuradas pelos profissionais de assistência técnica.</p>
+        </div>
+        <div class="grid grid--3">
+          <article class="service-card">
+            <h3>Unlock Tool 6 Horas</h3>
+            <p>Login e senha dedicados com execução guiada e painel completo.</p>
+            <div class="service-card__meta">
+              <span>Instant</span>
+              <strong>R$ 65,00</strong>
+            </div>
+          </article>
+          <article class="service-card">
+            <h3>Android Multi Tool 3 Horas</h3>
+            <p>Suporte para Xiaomi, Samsung e Motorola com acesso imediato.</p>
+            <div class="service-card__meta">
+              <span>Instant</span>
+              <strong>R$ 45,00</strong>
+            </div>
+          </article>
+          <article class="service-card">
+            <h3>TSM Tool 6 Horas</h3>
+            <p>Ferramenta avançada com login via fonte direta e suporte premium.</p>
+            <div class="service-card__meta">
+              <span>Instant</span>
+              <strong>R$ 58,00</strong>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="categories" id="aluguel">
       <div class="container grid grid--2">
         <div>
-          <h2>A ciência por trás da fórmula</h2>
-          <ul class="list list--check">
-            <li>Vitamina C 10% (AA2G): brilho e antioxidante estável</li>
-            <li>Niacinamida 5%: uniformiza o tom e controla oleosidade</li>
-            <li>Peptídeos Matrixyl®: firmeza visível e suavização de linhas</li>
-            <li>Ácido Hialurônico 3D: hidratação profunda e duradoura</li>
-            <li>Ceramidas + Pantenol: reparação da barreira cutânea</li>
+          <h2>Aluguel e remoto sob demanda</h2>
+          <p>Escolha a ferramenta ideal para desbloqueio, reparo ou ativação. Entrega imediata e pagamentos via PIX, cartão ou crédito.</p>
+          <ul class="checklist">
+            <li>Ativação e reset de conta Google/MI/iCloud</li>
+            <li>Processos guiados com suporte técnico 24/7</li>
+            <li>Dashboard de pedidos e histórico completo</li>
           </ul>
-          <div class="note">Sem fragrância adicionada. Livre de parabenos e crueldade animal.</div>
+          <button class="btn btn--primary">Solicitar acesso</button>
         </div>
-        <figure class="bottle">
-          <img src="img/placeholder.svg" alt="LUMINE Sérum" width="520" height="620" loading="lazy">
-        </figure>
-      </div>
-    </section>
-
-    <section id="depoimentos" class="testimonials">
-      <div class="container">
-        <h2>Resultados que falam por si</h2>
-        <div class="carousel" data-carousel>
-          <button class="carousel__btn prev" aria-label="Anterior">‹</button>
-          <div class="carousel__track">
-            <blockquote class="review">
-              <p>“Minha pele ganhou um viço que eu nunca tive. Em uma semana as manchinhas já estavam mais suaves.”</p>
-              <footer>— Marina, 29</footer>
-            </blockquote>
-            <blockquote class="review">
-              <p>“Hidrata sem pesar e sumiu com as linhas perto dos olhos. Virou rotina.”</p>
-              <footer>— Renata, 41</footer>
-            </blockquote>
-            <blockquote class="review">
-              <p>“É o sérum que mais senti diferença real na firmeza da pele.”</p>
-              <footer>— Camila, 36</footer>
-            </blockquote>
+        <div class="stats">
+          <div class="stat">
+            <strong>+18k</strong>
+            <span>Serviços entregues</span>
           </div>
-          <button class="carousel__btn next" aria-label="Próximo">›</button>
+          <div class="stat">
+            <strong>98%</strong>
+            <span>Taxa de sucesso</span>
+          </div>
+          <div class="stat">
+            <strong>24/7</strong>
+            <span>Suporte técnico</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="como-usar" class="how-to">
-      <div class="container grid grid--3">
-        <div class="step"><span class="num">1</span><h3>Limpe</h3><p>Rosto seco e limpo, manhã e noite.</p></div>
-        <div class="step"><span class="num">2</span><h3>Aplique</h3><p>3–5 gotas no rosto e pescoço. Não enxágue.</p></div>
-        <div class="step"><span class="num">3</span><h3>Sele</h3><p>Finalize com hidratante e protetor solar de dia.</p></div>
+    <section class="credits" id="creditos">
+      <div class="container">
+        <div class="section-title">
+          <h2>Compra de créditos</h2>
+          <p>Recarregue sua conta e utilize em qualquer serviço do painel.</p>
+        </div>
+        <div class="grid grid--3">
+          <article class="credit-card">
+            <h3>Pacote Start</h3>
+            <p>Ideal para pequenas demandas e testes rápidos.</p>
+            <strong>R$ 100,00</strong>
+            <button class="btn btn--outline">Comprar</button>
+          </article>
+          <article class="credit-card credit-card--featured">
+            <h3>Pacote Pro</h3>
+            <p>Mais vendido para assistências técnicas em crescimento.</p>
+            <strong>R$ 300,00</strong>
+            <button class="btn btn--primary">Comprar</button>
+          </article>
+          <article class="credit-card">
+            <h3>Pacote Business</h3>
+            <p>Volume elevado com bônus de créditos extras.</p>
+            <strong>R$ 700,00</strong>
+            <button class="btn btn--outline">Comprar</button>
+          </article>
+        </div>
       </div>
     </section>
 
-    <section id="oferta" class="offer">
-      <div class="container grid grid--3">
-        <article class="plan best" aria-label="Mais vendido">
-          <h3>Kit 3 unidades</h3>
-          <p class="save">Economize 20%</p>
-          <p class="price"><small>R$</small>359,70 <span>/ 3 x 30 ml</span></p>
-          <a id="comprar" href="#comprar" class="btn btn--primary btn--xl" data-cta>Comprar agora</a>
-          <p class="benefit">Frete grátis + brinde</p>
-        </article>
-        <article class="plan">
-          <h3>Kit 2 unidades</h3>
-          <p class="price"><small>R$</small>259,80</p>
-          <a href="#comprar" class="btn btn--secondary" data-cta>Adicionar ao carrinho</a>
-        </article>
-        <article class="plan">
-          <h3>1 unidade</h3>
-          <p class="price"><small>R$</small>149,90</p>
-          <a href="#comprar" class="btn btn--outline" data-cta>Experimentar</a>
-        </article>
-      </div>
-      <p class="guarantee container">Garantia incondicional de <strong>30 dias</strong>. Se não amar os resultados, devolvemos seu dinheiro.</p>
-    </section>
-
-    <section id="faq" class="faq container">
-      <h2>Perguntas frequentes</h2>
-      <div class="accordion" data-accordion>
-        <button class="acc__item" aria-expanded="false">Posso usar com outros ácidos?</button>
-        <div class="acc__panel">Sim, mas evite combinar na mesma aplicação com retinoides fortes. Alterne dias.</div>
-        <button class="acc__item" aria-expanded="false">É indicado para pele sensível?</button>
-        <div class="acc__panel">Sim. Fórmula sem fragrância e com pantenol e ceramidas para acalmar a pele.</div>
-        <button class="acc__item" aria-expanded="false">Em quanto tempo vejo resultados?</button>
-        <div class="acc__panel">Relatos mostram melhora na luminosidade em 7 dias e firmeza em 21 dias.</div>
+    <section class="support" id="suporte">
+      <div class="container grid grid--2">
+        <div>
+          <h2>Suporte e comunidade</h2>
+          <p>Fale com o time SupraUnlock e participe das comunidades oficiais.</p>
+          <div class="support__links">
+            <a href="https://dhmfsoftware.com/" target="_blank" rel="noreferrer">🌐 Web Site</a>
+            <a href="https://wa.me/5516988102134" target="_blank" rel="noreferrer">📞 WhatsApp</a>
+            <a href="https://chat.whatsapp.com/HK05hoHRBfTBVJMHXw0XFj" target="_blank" rel="noreferrer">🟢 Comunidade WhatsApp</a>
+            <a href="https://t.me/dhmfchannel" target="_blank" rel="noreferrer">🔵 Comunidade Telegram</a>
+          </div>
+        </div>
+        <form class="newsletter" data-newsletter>
+          <h3>Receba novidades e promoções</h3>
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" placeholder="voce@email.com" required>
+          <button class="btn btn--primary" type="submit">Quero receber</button>
+          <small>Ao enviar, você concorda com nossa política de privacidade.</small>
+        </form>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <div class="container grid grid--3">
+    <div class="container footer__inner">
       <div>
-        <img src="assets/logo.svg" alt="LUMINE" width="110" height="24" loading="lazy">
-        <p>Skincare de alta performance com resultados reais.</p>
-      </div>
-      <nav aria-label="Links">
-        <a href="#faq">FAQ</a>
-        <a href="#oferta">Planos</a>
-        <a href="#composicao">Fórmula</a>
-      </nav>
-      <form class="newsletter" data-newsletter>
-        <label for="email">Receba dicas e ofertas</label>
-        <div class="field">
-          <input id="email" name="email" type="email" placeholder="seu@email.com" required>
-          <button class="btn btn--primary" type="submit">Quero receber</button>
+        <div class="logo logo--footer">
+          <span class="logo__mark">Supra</span>
+          <span class="logo__sub">Unlock</span>
         </div>
-        <small>Ao enviar, você concorda com nossa política de privacidade.</small>
-      </form>
+        <p>Servidor completo de soluções para desbloqueio e ativação SupraUnlock.</p>
+      </div>
+      <div>
+        <h4>Menu</h4>
+        <a href="#imei">IMEI</a>
+        <a href="#ferramentas">Ferramentas</a>
+        <a href="#creditos">Créditos</a>
+      </div>
+      <div>
+        <h4>Atendimento</h4>
+        <a href="https://wa.me/5516988102134" target="_blank" rel="noreferrer">WhatsApp</a>
+        <a href="https://t.me/dhmfchannel" target="_blank" rel="noreferrer">Telegram</a>
+        <a href="https://www.facebook.com/dhmfsoftwareofcl" target="_blank" rel="noreferrer">Facebook</a>
+      </div>
     </div>
-    <div class="legal container">© <span data-year></span> LUMINE. Todos os direitos reservados.</div>
+    <div class="footer__legal">© <span data-year></span> SupraUnlock. Todos os direitos reservados.</div>
   </footer>
-
-  <a href="#oferta" class="sticky-cta" data-sticky-cta>Comprar agora</a>
 
   <script src="js/main.js" defer></script>
 </body>
 </html>
-

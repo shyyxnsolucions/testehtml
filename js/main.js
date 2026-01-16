@@ -1,52 +1,66 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const header = document.querySelector('[data-header]');
-  const stickyCta = document.querySelector('[data-sticky-cta]');
   const year = document.querySelector('[data-year]');
   if (year) year.textContent = new Date().getFullYear();
 
-  // Header shrink + sticky CTA
-  const onScroll = () => {
-    const y = window.scrollY;
-    if (y > 10) header.classList.add('is-scrolled'); else header.classList.remove('is-scrolled');
-    if (y > 600) stickyCta.classList.add('show'); else stickyCta.classList.remove('show');
-  };
-  window.addEventListener('scroll', onScroll, {passive:true});
-  onScroll();
-
-  // Simple carousel
-  const carousel = document.querySelector('[data-carousel]');
-  if (carousel){
-    const track = carousel.querySelector('.carousel__track');
-    const prev = carousel.querySelector('.prev');
-    const next = carousel.querySelector('.next');
-    let index = 0;
-    const move = (dir) => {
-      const cards = track.children.length;
-      index = (index + dir + cards) % cards;
-      const width = track.children[0].getBoundingClientRect().width + 18; // gap
-      track.scrollTo({left: index * width, behavior:'smooth'});
-    };
-    prev.addEventListener('click', () => move(-1));
-    next.addEventListener('click', () => move(1));
+  const menuToggle = document.querySelector('[data-menu-toggle]');
+  const menu = document.querySelector('[data-menu]');
+  if (menuToggle && menu) {
+    menuToggle.addEventListener('click', () => {
+      const isOpen = menu.classList.toggle('is-open');
+      menuToggle.setAttribute('aria-expanded', String(isOpen));
+    });
   }
 
-  // Accordion
-  document.querySelectorAll('[data-accordion] .acc__item').forEach(btn =>{
-    btn.addEventListener('click', () => {
-      const expanded = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', String(!expanded));
+  const currencyToggle = document.querySelector('[data-currency-toggle]');
+  const currencyMenu = document.querySelector('[data-currency-menu]');
+  if (currencyToggle && currencyMenu) {
+    currencyToggle.addEventListener('click', () => {
+      const isOpen = currencyMenu.style.display === 'block';
+      currencyMenu.style.display = isOpen ? 'none' : 'block';
     });
-  });
 
-  // Newsletter validation
+    document.addEventListener('click', (event) => {
+      if (!currencyToggle.contains(event.target) && !currencyMenu.contains(event.target)) {
+        currencyMenu.style.display = 'none';
+      }
+    });
+  }
+
+  const carouselTrack = document.querySelector('[data-carousel] .carousel__track');
+  const prevBtn = document.querySelector('[data-carousel-prev]');
+  const nextBtn = document.querySelector('[data-carousel-next]');
+  if (carouselTrack && prevBtn && nextBtn) {
+    const slides = Array.from(carouselTrack.children);
+    let index = 0;
+
+    const updateCarousel = () => {
+      carouselTrack.style.transform = `translateX(-${index * 100}%)`;
+    };
+
+    prevBtn.addEventListener('click', () => {
+      index = (index - 1 + slides.length) % slides.length;
+      updateCarousel();
+    });
+
+    nextBtn.addEventListener('click', () => {
+      index = (index + 1) % slides.length;
+      updateCarousel();
+    });
+
+    setInterval(() => {
+      index = (index + 1) % slides.length;
+      updateCarousel();
+    }, 6500);
+  }
+
   const form = document.querySelector('[data-newsletter]');
-  if (form){
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
+  if (form) {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
       const input = form.querySelector('input[type="email"]');
       const valid = /.+@.+\..+/.test(input.value);
-      if(!valid){
-        input.setAttribute('aria-invalid','true');
+      if (!valid) {
+        input.setAttribute('aria-invalid', 'true');
         input.focus();
         alert('Por favor, informe um e-mail válido.');
         return;
@@ -56,4 +70,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
