@@ -94,12 +94,9 @@ router.get('/gsm-test', async (req, res) => {
     return res.status(500).json({ error: 'GSM_IMEI_API_KEY não configurado.' });
   }
 
-  const authPlacement =
-    process.env.GSM_IMEI_TEST_AUTH_PLACEMENT || 'authorization_bearer';
-
   const url = new URL('/widget/getServicedetailsIMEI', baseUrl).toString();
   const payload = new URLSearchParams({
-    serviceid: '0',
+    serviceid: 'TEST',
     chosen: '1',
     charge: '0',
   });
@@ -107,15 +104,8 @@ router.get('/gsm-test', async (req, res) => {
   const headers = {
     Accept: 'application/json, text/plain, */*',
     'Content-Type': 'application/x-www-form-urlencoded',
+    Authorization: `Bearer ${apiKey}`,
   };
-
-  if (authPlacement === 'authorization_bearer') {
-    headers.Authorization = `Bearer ${apiKey}`;
-  } else if (authPlacement === 'x_api_key') {
-    headers['X-API-KEY'] = apiKey;
-  } else if (authPlacement === 'body_api_key') {
-    payload.append('api_key', apiKey);
-  }
 
   try {
     const response = await fetch(url, {
@@ -135,7 +125,6 @@ router.get('/gsm-test', async (req, res) => {
     return res.status(response.status).json({
       ok: response.ok,
       status: response.status,
-      authPlacement,
       response: data,
     });
   } catch (error) {
