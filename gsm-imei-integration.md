@@ -1,104 +1,117 @@
-# Integração GSM IMEI (gsm-imei.com)
+# Integração GSM-IMEI via Widget (Vercel)
 
-Este projeto implementa uma camada segura no backend para consumir os endpoints `widget` do gsm-imei.com. Todo o frontend chama **apenas** os endpoints internos do site.
+## Visão geral
 
-## Arquitetura
+A integração está orientada aos endpoints `/widget/*` do gsm-imei.com porque o endpoint `/api` pode estar bloqueado/WAF e o campo **API IP** do painel pode nunca ser preenchido. O diagnóstico em `/api/gsm-ip-register` serve apenas para confirmar se o acesso ao `/api` é possível, mas o fluxo de produção utiliza **somente** `/widget`.
 
-- **Frontend**: páginas HTML que consomem `/api/*`.
-- **Backend**: `server.js` (Express) + cliente `server/gsmImeiClient.js`.
-- **Configuração central**: `server/gsm-imei.config.js`.
-- **Cache**: memória + arquivo `data/gsm-imei-cache.json` (fallback).
+## Variáveis de ambiente
+
+- `GSM_IMEI_BASE_URL` (ex: `https://gsm-imei.com`)
+- `GSM_IMEI_API_KEY` (token usado no header `Authorization: Bearer`)
+- `GSM_IMEI_SERVICE_CATALOG_JSON` (catálogo manual de serviços)
+
+Formato esperado para `GSM_IMEI_SERVICE_CATALOG_JSON`:
+
+```json
+[
+  {
+    "id": "123",
+    "name": "Service Name",
+    "type": "imei",
+    "price": 0.07,
+    "currency": "USD",
+    "min": 1,
+    "max": 6
+  }
+]
+```
 
 ## Endpoints internos
 
-- `GET /api/services` → lista serviços (com cache e margem aplicada).
-- `GET /api/services/:id` → chama `getServicedetailsIMEI`.
-- `POST /api/orders` → chama `placeorderimei`.
-- `GET /api/orders/:id` → status (stub se não configurado).
-- `GET /api/orders` → histórico local (arquivo).
+### Diagnóstico de IP
 
-## Configuração .env
+`GET /api/gsm-ip-register`
 
-Crie um `.env` a partir do `.env.example`:
+Retorna JSON compacto com tentativas de acesso ao `/api` e uma recomendação de modo.
 
-```
-GSM_IMEI_API_KEY=
-GSM_IMEI_BASE_URL=https://gsm-imei.com
-GSM_IMEI_AUTH_MODE=api_key
-GSM_IMEI_AUTH_PLACEMENT=authorization_bearer
-GSM_IMEI_SESSION_COOKIE=
-GSM_IMEI_ENDPOINT_LIST_SERVICES=
-GSM_IMEI_ENDPOINT_ORDER_STATUS=
-GSM_IMEI_ENDPOINT_ORDER_HISTORY=
-GSM_IMEI_FIELD_SERVICE_ID=serviceid
-GSM_IMEI_FIELD_IMEI=imei
-GSM_IMEI_FIELD_SN=sn
-GSM_IMEI_CONTENT_TYPE=application/x-www-form-urlencoded
-PROFIT_MARGIN_PERCENT=30
-SERVICES_CACHE_TTL_SECONDS=3600
-GSM_IMEI_SERVICE_ALLOWLIST=
-GSM_IMEI_SERVICE_BLOCKLIST=
-PORT=3000
+Exemplo de resposta:
+
+```json
+{
+  "baseUrl": "https://gsm-imei.com",
+  "resolvedApiEndpoint": "https://gsm-imei.com/api",
+  "attempts": [
+    {
+      "name": "api_key_body_balance",
+      "url": "https://gsm-imei.com/api",
+      "status": 403,
+      "ok": false,
+      "bodyPreview": "Page does not exist"
+    }
+  ],
+  "conclusion": "API_ACCESS_ENDPOINT_BLOCKED_OR_NOT_AVAILABLE",
+  "recommendedMode": "WIDGET_BACKEND_INTEGRATION",
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
 ```
 
-### Auth modes
+### Catálogo de serviços
 
-- **api_key** (preferencial)
-  - `authorization_bearer`: `Authorization: Bearer <KEY>`
-  - `x_api_key`: `X-API-KEY: <KEY>`
-  - `body_api_key`: envia `api_key=<KEY>` no body.
-- **session_cookie** (fallback temporário)
-  - Define `GSM_IMEI_SESSION_COOKIE` para testes. Não automatiza login.
+`GET /api/gsm/services`
 
-## Onde trocar endpoints quando descobrir no Network
+- Se `GSM_IMEI_SERVICE_CATALOG_JSON` estiver definido, retorna a lista do catálogo.
+- Caso contrário, retorna:
 
-Edite `server/gsm-imei.config.js` ou defina via `.env`:
-
-- `GSM_IMEI_ENDPOINT_LIST_SERVICES`: endpoint real de listagem (`/widget/...`).
-- `GSM_IMEI_ENDPOINT_ORDER_STATUS`: endpoint de status/pedidos (`/widget/...`).
-- `GSM_IMEI_ENDPOINT_ORDER_HISTORY`: endpoint de histórico (se existir).
-
-> Sem esses endpoints, as rotas `/api/services` e `/api/orders/:id` retornam **stub**.
-
-## Mapeamento atual (obrigatório)
-
-- **Detalhes do serviço**
-  - `POST /widget/getServicedetailsIMEI`
-  - Body: `serviceid`, `chosen=1`, `charge=0`, campos vazios opcionais.
-
-- **Criar pedido**
-  - `POST /widget/placeorderimei`
-  - Body: campos do formulário (`serviceid`, `imei`/`sn`, campos extras vazios).
-
-## Campos do pedido
-
-Se o nome do campo do IMEI ou serviceid for diferente, ajuste:
-
-- `GSM_IMEI_FIELD_SERVICE_ID`
-- `GSM_IMEI_FIELD_IMEI`
-- `GSM_IMEI_FIELD_SN`
-
-## Cache
-
-- TTL em `SERVICES_CACHE_TTL_SECONDS`.
-- Margem aplicada em `PROFIT_MARGIN_PERCENT`.
-- Allowlist/Blocklist via `GSM_IMEI_SERVICE_ALLOWLIST` e `GSM_IMEI_SERVICE_BLOCKLIST`.
-
-## Rodar local
-
-```bash
-npm install
-npm run dev
+```json
+{
+  "error": "SERVICE_CATALOG_NOT_CONFIGURED",
+  "howToFix": "Defina GSM_IMEI_SERVICE_CATALOG_JSON na Vercel com uma lista JSON de serviços."
+}
 ```
 
-Abra:
-- `http://localhost:3000/services.html`
-- `http://localhost:3000/order.html`
-- `http://localhost:3000/history.html`
+### Criar pedido (widget)
 
-## Checklist de testes
+`POST /api/gsm/order`
 
-1. `GET /api/services` retorna lista (ou stub configurável).
-2. `GET /api/services/:id` chama `getServicedetailsIMEI`.
-3. `POST /api/orders` cria pedido via `placeorderimei`.
-4. `GET /api/orders/:id` retorna status (ou stub configurável).
+Body (JSON):
+
+```json
+{
+  "serviceId": "123",
+  "imeiList": ["111111111111111", "222222222222222"]
+}
+```
+
+Resposta:
+
+```json
+{
+  "ok": true,
+  "status": 200,
+  "providerBodyPreview": "..."
+}
+```
+
+### Consultar status (widget)
+
+`GET /api/gsm/status?orderId=<id>`
+
+O backend tenta, com timeout, os endpoints:
+
+- `/widget/orders`
+- `/widget/orderstatus`
+- `/widget/imeiorders`
+- `/widget/getorderstatus`
+
+Se nenhum responder (404), retorna:
+
+```json
+{
+  "error": "STATUS_ENDPOINT_NOT_FOUND",
+  "hint": "GSM-IMEI não expõe status via widget para esta conta. Use painel manual ou ajuste quando houver endpoint real."
+}
+```
+
+## Observação importante
+
+Mesmo com resposta 200 em `/widget`, o campo **API IP** no painel pode permanecer vazio. Isso é esperado se o `/api` estiver bloqueado. A integração segue funcional via widget.
