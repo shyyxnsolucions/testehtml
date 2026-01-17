@@ -1,4 +1,16 @@
 const DEFAULT_TIMEOUT_MS = 10000;
+const MAX_PREVIEW_LENGTH = 1000;
+
+function redactSecrets(text, secrets) {
+  if (!text) return '';
+  let safe = text;
+  for (const secret of secrets) {
+    if (!secret) continue;
+    const escaped = secret.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    safe = safe.replace(new RegExp(escaped, 'g'), '***');
+  }
+  return safe.slice(0, MAX_PREVIEW_LENGTH);
+}
 
 function buildTimeoutSignal(timeoutMs) {
   const controller = new AbortController();
@@ -6,44 +18,12 @@ function buildTimeoutSignal(timeoutMs) {
   return { signal: controller.signal, timeout };
 }
 
-async function readJsonBody(req) {
-  if (req.body && typeof req.body === 'object') {
-    return req.body;
-  }
-
-  const chunks = [];
-  for await (const chunk of req) {
-    chunks.push(chunk);
-  }
-  const raw = Buffer.concat(chunks).toString('utf8');
-
-  if (!raw) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(raw);
-  } catch (error) {
-    return {};
-  }
-}
-
-function parseJson(text) {
-  if (!text) return null;
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    return null;
-  }
-}
-
-async function postDhru({ baseUrl, username, apiKey, action, params }) {
+async function postDhru({ baseUrl, username, apiKey, action }) {
   const url = new URL('/api/index.php', baseUrl);
   const payload = new URLSearchParams({
     username,
     apiaccesskey: apiKey,
     action,
-    ...params,
   });
 
   const { signal, timeout } = buildTimeoutSignal(DEFAULT_TIMEOUT_MS);
@@ -64,8 +44,8 @@ async function postDhru({ baseUrl, username, apiKey, action, params }) {
 }
 
 module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET');
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
@@ -80,47 +60,29 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const body = await readJsonBody(req);
-  const serviceId = body.serviceId;
-  const imei = body.imei;
-
-  if (!serviceId || !imei) {
-    return res.status(400).json({
-      error: 'Parâmetros obrigatórios ausentes.',
-      detail: 'Informe serviceId e imei.',
-    });
-  }
-
   try {
     const { response, text } = await postDhru({
       baseUrl,
       username,
       apiKey,
-      action: 'placeorder',
-      params: {
-        serviceid: String(serviceId),
-        imei: String(imei),
-      },
+      action: 'accountinfo',
     });
-
-    const json = parseJson(text);
-    const orderId = json?.order_id ?? json?.orderid ?? json?.data?.order_id ?? null;
-    const status =
-      json?.status ?? json?.result ?? (response.ok ? 'success' : 'error');
-    const message = json?.message ?? json?.msg ?? null;
 
     res.setHeader('Content-Type', 'application/json');
     return res.status(200).json({
-      order_id: orderId,
-      status,
-      message,
+      status: response.status,
+      ok: response.ok,
+      bodyPreview: redactSecrets(text, [apiKey, username]),
     });
   } catch (error) {
     res.setHeader('Content-Type', 'application/json');
     return res.status(500).json({
-      order_id: null,
-      status: 'error',
-      message: error?.message || 'Erro ao enviar pedido.',
+      status: 500,
+      ok: false,
+      bodyPreview: redactSecrets(
+        `${error?.name || 'Error'}: ${error?.message || 'Unknown error'}`,
+        [apiKey, username]
+      ),
     });
   }
 };
