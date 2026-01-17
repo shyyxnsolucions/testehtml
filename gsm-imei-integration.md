@@ -115,3 +115,22 @@ Se nenhum responder (404), retorna:
 ## Observação importante
 
 Mesmo com resposta 200 em `/widget`, o campo **API IP** no painel pode permanecer vazio. Isso é esperado se o `/api` estiver bloqueado. A integração segue funcional via widget.
+
+## Problemas comuns e como diagnosticar
+
+### API não funciona e o IP não registra
+
+1. **Confirme as variáveis de ambiente.** Sem `GSM_IMEI_BASE_URL` e `GSM_IMEI_API_KEY` o backend responde erro 500.
+2. **Teste o diagnóstico de IP.** Acesse `GET /api/gsm-ip-register`.
+   - Se `conclusion` vier como `API_ACCESS_ENDPOINT_BLOCKED_OR_NOT_AVAILABLE`, o endpoint `/api` está bloqueado (WAF/403) e o IP não será registrado.
+   - Se `conclusion` vier como `REGISTERED_LIKELY`, o endpoint `/api` respondeu e o painel deve registrar o IP.
+   - Se `conclusion` vier como `UNKNOWN` **e todas as tentativas retornarem 403 com HTML**, isso indica bloqueio/WAF no `/api`. Nesse cenário o painel não registra IP e a integração precisa seguir pelo widget.
+3. **Use o fluxo de widget para produção.** Mesmo com o IP vazio, os endpoints `/widget/*` continuam funcionando para pedidos e consultas.
+
+### Catálogo vazio ou lista de serviços não aparece
+
+Configure `GSM_IMEI_SERVICE_CATALOG_JSON` com o catálogo manual. Sem isso, `GET /api/gsm/services` retorna erro indicando a ausência do catálogo.
+
+### Pedido falha com IMEI/SN inválido
+
+O backend valida o input: IMEI precisa ter 14-16 dígitos e passar no check Luhn. Se falhar, ajuste o valor antes de enviar o pedido.

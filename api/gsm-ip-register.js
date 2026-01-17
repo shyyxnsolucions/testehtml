@@ -75,7 +75,9 @@ async function runAttempt({ name, url, method, headers, body, apiKey }) {
 
 function isApiAccessBlocked(attempt) {
   if (attempt.status !== 403) return false;
-  return /page does not exist|error 404/i.test(attempt.bodyPreview || '');
+  return /page does not exist|error 404|<html|<style|\.fof/i.test(
+    attempt.bodyPreview || ''
+  );
 }
 
 function detectConclusion(attempts, resolvedApiEndpoint) {
