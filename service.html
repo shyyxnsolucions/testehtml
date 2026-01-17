@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR" translate="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Detalhe do serviço - SupraUnlock</title>
+  <meta name="description" content="Detalhes do serviço GSM.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+</head>
+<body>
+  <header class="header" data-header>
+    <div class="container header__inner">
+      <a class="logo" href="index.html">
+        <span class="logo__mark">Supra</span>
+        <span class="logo__sub">Unlock</span>
+      </a>
+      <nav class="nav" id="main-menu">
+        <a href="services.html">🧾 Serviços</a>
+        <a href="order.html">🧾 Fazer pedido</a>
+        <a href="history.html">📦 Histórico</a>
+      </nav>
+      <a class="btn btn--primary" href="order.html">Novo pedido</a>
+    </div>
+  </header>
+
+  <main class="services">
+    <div class="container">
+      <div class="section-title">
+        <h1>Detalhe do serviço</h1>
+        <p>Dados retornados diretamente do endpoint getServicedetailsIMEI.</p>
+      </div>
+
+      <div data-service-details></div>
+    </div>
+  </main>
+
+  <script src="js/gsm-imei.js" defer></script>
+</body>
+</html>

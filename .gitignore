@@ -1,0 +1,3 @@
+.env
+data/gsm-imei-cache.json
+node_modules
