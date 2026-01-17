@@ -1,6 +1,6 @@
-const DEFAULT_TIMEOUT_MS = 15000;
+const DEFAULT_TIMEOUT_MS = 10000;
 
-async function readBody(req) {
+async function readJsonBody(req) {
   if (req.body && typeof req.body === 'object') {
     return req.body;
   }
@@ -15,29 +15,21 @@ async function readBody(req) {
     return {};
   }
 
-  const contentType = req.headers['content-type'] || '';
-  if (contentType.includes('application/json')) {
-    try {
-      return JSON.parse(raw);
-    } catch (error) {
-      return {};
-    }
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    return {};
   }
-
-  if (contentType.includes('application/x-www-form-urlencoded')) {
-    const params = new URLSearchParams(raw);
-    return Object.fromEntries(params.entries());
-  }
-
-  return {};
 }
 
-function parseJson(text) {
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    return null;
+function sanitizePreview(text, apiKey) {
+  if (!text) return '';
+  let safeText = text;
+  if (apiKey) {
+    const escapedKey = apiKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    safeText = safeText.replace(new RegExp(escapedKey, 'g'), '***');
   }
+  return safeText.slice(0, 400);
 }
 
 module.exports = async function handler(req, res) {
@@ -56,20 +48,29 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const body = await readBody(req);
-  const serviceId = body.service_id || body.serviceId;
-  const imei = body.imei;
+  const body = await readJsonBody(req);
+  const serviceId = body.serviceId;
+  const imeiList = body.imeiList;
 
-  if (!serviceId || !imei) {
+  if (!serviceId || !Array.isArray(imeiList)) {
     return res.status(400).json({
       error: 'Parâmetros obrigatórios ausentes.',
-      detail: 'Informe service_id e imei.',
+      detail: 'Informe serviceId e imeiList.',
+    });
+  }
+
+  if (imeiList.length < 1 || imeiList.length > 6) {
+    return res.status(400).json({
+      error: 'Quantidade de IMEIs inválida.',
+      detail: 'imeilist deve conter de 1 a 6 itens.',
     });
   }
 
   const payload = new URLSearchParams({
     serviceid: String(serviceId),
-    imei: String(imei),
+    imei_custom: imeiList.map(String).join('\n'),
+    chosen: '1',
+    charge: '0',
   });
 
   const url = new URL('/widget/placeorderimei', baseUrl);
@@ -80,40 +81,29 @@ module.exports = async function handler(req, res) {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Bearer ${apiKey}`,
-        'User-Agent': 'Vercel Serverless',
+        'User-Agent': 'Mozilla/5.0',
       },
       body: payload,
       signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
     });
 
     const text = await response.text();
-    const data = parseJson(text) || {};
-
-    if (!response.ok) {
-      res.setHeader('Content-Type', 'application/json');
-      return res.status(response.status).json({
-        error: 'Falha ao criar pedido.',
-        status: response.status,
-        bodyPreview: text.slice(0, 5000),
-      });
-    }
-
-    const orderId = data.orderid || data.id || data.order_id || data.order;
-    const status = data.status || data.result || 'submitted';
-    const message = data.message || data.msg || 'Pedido enviado.';
 
     res.setHeader('Content-Type', 'application/json');
     return res.status(200).json({
-      order_id: orderId || null,
-      status,
-      message,
+      ok: response.ok,
+      status: response.status,
+      providerBodyPreview: sanitizePreview(text, apiKey),
     });
   } catch (error) {
     res.setHeader('Content-Type', 'application/json');
     return res.status(500).json({
-      error: 'Erro ao conectar ao GSM IMEI.',
-      name: error?.name || 'Error',
-      message: error?.message || 'Unknown error',
+      ok: false,
+      status: 500,
+      providerBodyPreview: sanitizePreview(
+        `${error?.name || 'Error'}: ${error?.message || 'Unknown error'}`,
+        apiKey
+      ),
     });
   }
 };

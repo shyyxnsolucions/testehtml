@@ -36,52 +36,16 @@ function sanitizePreview(text, apiKey) {
     const escapedKey = apiKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     safeText = safeText.replace(new RegExp(escapedKey, 'g'), '***');
   }
-  return safeText.slice(0, 2000);
-}
-
-function extractHeaders(response) {
-  const headerNames = [
-    'content-type',
-    'content-length',
-    'server',
-    'date',
-    'cache-control',
-  ];
-  const headers = {};
-  for (const name of headerNames) {
-    const value = response.headers.get(name);
-    if (value) {
-      headers[name] = value;
-    }
-  }
-  return headers;
-}
-
-function buildErrorPayload(error) {
-  if (!error) return null;
-  const payload = {
-    name: error?.name || 'Error',
-    message: error?.message || 'Unknown error',
-  };
-  if (error?.cause) {
-    payload.cause = {
-      name: error.cause?.name || 'Error',
-      message: error.cause?.message || 'Unknown error',
-    };
-  }
-  return payload;
+  return safeText.slice(0, 400);
 }
 
 async function runAttempt({ name, url, method, headers, body, apiKey }) {
   const attempt = {
     name,
     url,
-    method,
     status: null,
     ok: false,
-    headers: {},
     bodyPreview: '',
-    error: null,
   };
 
   try {
@@ -96,54 +60,45 @@ async function runAttempt({ name, url, method, headers, body, apiKey }) {
 
     attempt.status = response.status;
     attempt.ok = response.ok;
-    attempt.headers = extractHeaders(response);
 
     const text = await response.text();
     attempt.bodyPreview = sanitizePreview(text, apiKey);
   } catch (error) {
-    attempt.error = buildErrorPayload(error);
+    attempt.bodyPreview = sanitizePreview(
+      `${error?.name || 'Error'}: ${error?.message || 'Unknown error'}`,
+      apiKey
+    );
   }
 
   return attempt;
 }
 
-function isHtmlResponse(attempt) {
-  const contentType = attempt.headers?.['content-type']?.toLowerCase() || '';
-  const preview = attempt.bodyPreview?.toLowerCase() || '';
-  return (
-    contentType.includes('text/html') ||
-    preview.includes('<html') ||
-    preview.includes('<!doctype html') ||
-    preview.includes('/widget')
-  );
-}
-
-function isRegisteredLikely(attempt) {
-  if (attempt.status === null) return false;
-  if (attempt.status < 200 || attempt.status >= 400) return false;
-  return !isHtmlResponse(attempt);
+function isApiAccessBlocked(attempt) {
+  if (attempt.status !== 403) return false;
+  return /page does not exist|error 404/i.test(attempt.bodyPreview || '');
 }
 
 function detectConclusion(attempts, resolvedApiEndpoint) {
+  if (attempts.some((attempt) => attempt.status >= 200 && attempt.status < 400)) {
+    return 'REGISTERED_LIKELY';
+  }
+
+  if (attempts.some((attempt) => isApiAccessBlocked(attempt))) {
+    return 'API_ACCESS_ENDPOINT_BLOCKED_OR_NOT_AVAILABLE';
+  }
+
   if (!resolvedApiEndpoint) {
     return 'API_ENDPOINT_NOT_FOUND';
   }
 
-  if (attempts.some((attempt) => isRegisteredLikely(attempt))) {
-    return 'REGISTERED_LIKELY';
-  }
-
-  const blocked = attempts.some((attempt) =>
-    /invalid ip|ip not allowed/i.test(attempt.bodyPreview || '')
-  );
-  if (blocked) return 'BLOCKED_BY_IP';
-
-  const authFailed = attempts.some((attempt) =>
-    /invalid key|unauthorized/i.test(attempt.bodyPreview || '')
-  );
-  if (authFailed) return 'AUTH_FAILED';
-
   return 'UNKNOWN';
+}
+
+function detectRecommendedMode(conclusion) {
+  if (conclusion === 'REGISTERED_LIKELY') {
+    return 'API_REAL';
+  }
+  return 'WIDGET_BACKEND_INTEGRATION';
 }
 
 module.exports = async function handler(req, res) {
@@ -164,10 +119,10 @@ module.exports = async function handler(req, res) {
 
   const resolvedApiEndpoint = await probeApiEndpoint(baseUrl);
   const attempts = [];
-  const actions = ['balance', 'accountinfo', 'me', 'userinfo'];
-  let registeredLikely = false;
 
   if (resolvedApiEndpoint) {
+    const actions = ['balance', 'accountinfo', 'me', 'userinfo'];
+
     for (const action of actions) {
       const attemptConfigs = [
         {
@@ -232,47 +187,33 @@ module.exports = async function handler(req, res) {
           apiKey,
         });
         attempts.push(attempt);
-        if (isRegisteredLikely(attempt)) {
-          registeredLikely = true;
+        if (attempt.status >= 200 && attempt.status < 400) {
           break;
         }
       }
 
-      if (registeredLikely) {
+      if (attempts.some((attempt) => attempt.status >= 200 && attempt.status < 400)) {
         break;
       }
     }
   }
 
-  if (!registeredLikely) {
-    attempts.push(
-      await runAttempt({
-        name: 'widget_service_details',
-        url: new URL('/widget/getServicedetailsIMEI', baseUrl).toString(),
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'Vercel Serverless',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: new URLSearchParams({
-          serviceid: 'TEST',
-          chosen: '1',
-          charge: '0',
-        }),
-        apiKey,
-      })
-    );
-  }
-
   const conclusion = detectConclusion(attempts, resolvedApiEndpoint);
+  const recommendedMode = detectRecommendedMode(conclusion);
 
   res.setHeader('Content-Type', 'application/json');
   return res.status(200).json({
     baseUrl,
     resolvedApiEndpoint,
-    attempts,
+    attempts: attempts.map((attempt) => ({
+      name: attempt.name,
+      url: attempt.url,
+      status: attempt.status,
+      ok: attempt.ok,
+      bodyPreview: attempt.bodyPreview,
+    })),
     conclusion,
+    recommendedMode,
     timestamp: new Date().toISOString(),
   });
 };
