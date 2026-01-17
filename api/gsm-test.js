@@ -1,7 +1,25 @@
 const http = require('http');
 const https = require('https');
 
-function postForm(url, body, headers) {
+function collectResponse(response) {
+  return new Promise((resolve) => {
+    let data = '';
+
+    response.setEncoding('utf8');
+    response.on('data', (chunk) => {
+      data += chunk;
+    });
+    response.on('end', () => {
+      resolve({
+        status: response.statusCode || 500,
+        headers: response.headers || {},
+        text: data,
+      });
+    });
+  });
+}
+
+function requestForm(url, body, headers, timeoutMs = 15000) {
   return new Promise((resolve, reject) => {
     const client = url.protocol === 'http:' ? http : https;
     const request = client.request(
@@ -13,25 +31,43 @@ function postForm(url, body, headers) {
         headers,
       },
       (response) => {
-        let data = '';
-
-        response.setEncoding('utf8');
-        response.on('data', (chunk) => {
-          data += chunk;
-        });
-        response.on('end', () => {
-          resolve({
-            status: response.statusCode || 500,
-            text: data,
-          });
-        });
+        collectResponse(response).then(resolve).catch(reject);
       }
     );
+
+    request.setTimeout(timeoutMs, () => {
+      const timeoutError = new Error('Request timed out');
+      timeoutError.name = 'TimeoutError';
+      request.destroy(timeoutError);
+    });
 
     request.on('error', reject);
     request.write(body);
     request.end();
   });
+}
+
+function buildErrorPayload(error, upstream) {
+  const payload = {
+    error: {
+      name: error?.name || 'Error',
+      message: error?.message || 'Unknown error',
+    },
+  };
+
+  if (error?.cause) {
+    payload.error.cause = String(error.cause);
+  }
+
+  if (upstream) {
+    payload.upstream = {
+      status: upstream.status,
+      headers: upstream.headers || {},
+      bodyPreview: upstream.text ? upstream.text.slice(0, 5000) : '',
+    };
+  }
+
+  return payload;
 }
 
 module.exports = async function handler(req, res) {
@@ -50,24 +86,42 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  try {
-    const payload = new URLSearchParams({
-      serviceid: 'TEST',
-      chosen: '1',
-      charge: '0',
-    }).toString();
-    const url = new URL(`${baseUrl}/widget/getServicedetailsIMEI`);
-    const { status, text } = await postForm(url, payload, {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': Buffer.byteLength(payload),
-      Authorization: `Bearer ${apiKey}`,
-    });
+  const payload = new URLSearchParams({
+    serviceid: 'TEST',
+    chosen: '1',
+    charge: '0',
+  }).toString();
 
-    return res.status(status).type('text/plain').send(text);
+  // Method C (commented): api_key in body
+  // const payload = new URLSearchParams({
+  //   serviceid: 'TEST',
+  //   chosen: '1',
+  //   charge: '0',
+  //   api_key: apiKey,
+  // }).toString();
+
+  const url = new URL(`${baseUrl}/widget/getServicedetailsIMEI`);
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Length': Buffer.byteLength(payload),
+    'User-Agent': 'Vercel Serverless',
+    // Method A (default): Authorization header
+    Authorization: `Bearer ${apiKey}`,
+    // Method B (commented): X-API-KEY header
+    // 'X-API-KEY': apiKey,
+  };
+
+  try {
+    const upstream = await requestForm(url, payload, headers);
+
+    if (upstream.status >= 400) {
+      return res.status(upstream.status).json(
+        buildErrorPayload(new Error('Upstream request failed'), upstream)
+      );
+    }
+
+    return res.status(upstream.status).type('text/plain').send(upstream.text);
   } catch (error) {
-    return res.status(500).json({
-      error: 'Erro ao conectar ao GSM IMEI.',
-      detail: 'Não foi possível completar a requisição.',
-    });
+    return res.status(500).json(buildErrorPayload(error));
   }
 };
