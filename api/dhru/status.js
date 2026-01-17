@@ -1,4 +1,4 @@
-const { dhruRequest, getDhruConfig, parseJson, safePreview } = require('../lib/dhruClient');
+const { dhruRequest, getDhruConfig, parseJson, safePreview } = require('../../lib/dhruClient');
 
 function isValidValue(value, min = 3, max = 60) {
   if (!value) return false;
@@ -61,10 +61,7 @@ module.exports = async function handler(req, res) {
   try {
     let result = null;
     for (const params of paramCandidates) {
-      const attempt = await dhruRequest({
-        actionCandidates: ['orderstatus', 'status'],
-        params,
-      });
+      const attempt = await dhruRequest('orderstatus', params);
 
       if (!result) {
         result = attempt;
@@ -78,6 +75,7 @@ module.exports = async function handler(req, res) {
 
     const parsed = parseJson(result?.text || '');
     const { orderId, providerStatus } = extractStatus(parsed);
+    const errorMessage = parsed?.error || parsed?.message || parsed?.msg || null;
 
     res.setHeader('Content-Type', 'application/json');
     return res.status(200).json({
@@ -85,6 +83,7 @@ module.exports = async function handler(req, res) {
       status: result?.response?.status || 500,
       orderId: orderId || orderIdValue,
       providerStatus,
+      error: errorMessage,
       rawPreview: safePreview(result?.text || '', [config.apiKey, config.username]),
     });
   } catch (error) {
@@ -94,6 +93,7 @@ module.exports = async function handler(req, res) {
       status: 500,
       orderId: orderIdValue,
       providerStatus: null,
+      error: 'Erro ao consultar status DHRU.',
       rawPreview: safePreview(
         `${error?.name || 'Error'}: ${error?.message || 'Unknown error'}`,
         [config.apiKey, config.username]

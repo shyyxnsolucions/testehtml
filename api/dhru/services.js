@@ -1,4 +1,4 @@
-const { dhruRequest, getDhruConfig, parseJson, safePreview } = require('../lib/dhruClient');
+const { dhruRequest, getDhruConfig, parseJson, safePreview } = require('../../lib/dhruClient');
 
 function normalizeService(entry) {
   if (!entry || typeof entry !== 'object') {
@@ -43,24 +43,28 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const result = await dhruRequest({
-      actionCandidates: ['services'],
-      params: {},
-    });
+    const result = await dhruRequest('services');
 
     const parsed = parseJson(result.text);
     const list = extractServiceList(parsed);
     const services = list.map(normalizeService).filter(Boolean);
+    const errorMessage = parsed?.error || parsed?.message || parsed?.msg || null;
 
     res.setHeader('Content-Type', 'application/json');
     return res.status(200).json({
+      ok: result.response.ok,
+      status: result.response.status,
       services,
+      error: errorMessage,
       rawPreview: safePreview(result.text, [config.apiKey, config.username]),
     });
   } catch (error) {
     res.setHeader('Content-Type', 'application/json');
     return res.status(500).json({
+      ok: false,
+      status: 500,
       services: [],
+      error: 'Erro ao consultar serviços DHRU.',
       rawPreview: safePreview(
         `${error?.name || 'Error'}: ${error?.message || 'Unknown error'}`,
         [config.apiKey, config.username]

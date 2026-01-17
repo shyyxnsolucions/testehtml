@@ -1,4 +1,4 @@
-const { dhruRequest, getDhruConfig, safePreview } = require('../lib/dhruClient');
+const { dhruRequest, getDhruConfig, safePreview, parseJson } = require('../lib/dhruClient');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -19,18 +19,17 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const result = await dhruRequest({
-      actionCandidates: ['accountinfo', 'balance'],
-      params: {},
-    });
+    const result = await dhruRequest('balance');
+    const parsed = parseJson(result.text);
+    const errorMessage = parsed?.error || parsed?.message || parsed?.msg || null;
 
     res.setHeader('Content-Type', 'application/json');
     return res.status(200).json({
       ok: result.response.ok,
       status: result.response.status,
       endpointUsed: result.endpointUsed,
-      fieldMapUsed: result.fieldMapUsed,
       bodyPreview: safePreview(result.text, [config.apiKey, config.username]),
+      error: errorMessage,
     });
   } catch (error) {
     res.setHeader('Content-Type', 'application/json');
@@ -38,7 +37,7 @@ module.exports = async function handler(req, res) {
       ok: false,
       status: 500,
       endpointUsed: null,
-      fieldMapUsed: null,
+      error: 'Erro ao testar DHRU.',
       bodyPreview: safePreview(
         `${error?.name || 'Error'}: ${error?.message || 'Unknown error'}`,
         [config.apiKey, config.username]

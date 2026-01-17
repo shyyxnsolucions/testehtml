@@ -38,25 +38,28 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const result = await dhruRequest({
-      actionCandidates: ['balance'],
-      params: {},
-    });
+    const result = await dhruRequest('balance');
 
     const parsed = parseJson(result.text);
     const { balance, currency } = extractBalance(parsed);
 
     res.setHeader('Content-Type', 'application/json');
     return res.status(200).json({
+      ok: result.response.ok,
+      status: result.response.status,
       balance,
       currency,
+      error: parsed?.error || parsed?.message || parsed?.msg || null,
       rawPreview: safePreview(result.text, [config.apiKey, config.username]),
     });
   } catch (error) {
     res.setHeader('Content-Type', 'application/json');
     return res.status(500).json({
+      ok: false,
+      status: 500,
       balance: null,
       currency: null,
+      error: 'Erro ao consultar saldo DHRU.',
       rawPreview: safePreview(
         `${error?.name || 'Error'}: ${error?.message || 'Unknown error'}`,
         [config.apiKey, config.username]

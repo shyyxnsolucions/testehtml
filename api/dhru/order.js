@@ -81,10 +81,7 @@ module.exports = async function handler(req, res) {
   try {
     let result = null;
     for (const params of paramCandidates) {
-      const attempt = await dhruRequest({
-        actionCandidates: ['placeorder', 'placeOrder'],
-        params,
-      });
+      const attempt = await dhruRequest('placeorder', params);
 
       if (!result) {
         result = attempt;
@@ -98,6 +95,7 @@ module.exports = async function handler(req, res) {
 
     const parsed = parseJson(result?.text || '');
     const { orderId, message } = extractOrderDetails(parsed);
+    const errorMessage = parsed?.error || parsed?.message || parsed?.msg || null;
 
     res.setHeader('Content-Type', 'application/json');
     return res.status(200).json({
@@ -105,6 +103,7 @@ module.exports = async function handler(req, res) {
       status: result?.response?.status || 500,
       orderId,
       message,
+      error: errorMessage,
       rawPreview: safePreview(result?.text || '', [config.apiKey, config.username]),
     });
   } catch (error) {
@@ -114,6 +113,7 @@ module.exports = async function handler(req, res) {
       status: 500,
       orderId: null,
       message: null,
+      error: 'Erro ao criar pedido DHRU.',
       rawPreview: safePreview(
         `${error?.name || 'Error'}: ${error?.message || 'Unknown error'}`,
         [config.apiKey, config.username]

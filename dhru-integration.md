@@ -11,7 +11,7 @@ Defina estas variáveis no projeto:
 
 ## Endpoints internos
 
-- `GET /api/dhru-test`
+- `GET /api/dhru/test`
 - `GET /api/dhru/balance`
 - `GET /api/dhru/services`
 - `POST /api/dhru/order`
@@ -24,7 +24,7 @@ Defina estas variáveis no projeto:
 **Request**
 
 ```bash
-curl -s "https://<seu-dominio>/api/dhru-test"
+curl -s "https://<seu-dominio>/api/dhru/test"
 ```
 
 **Response (exemplo)**
@@ -34,11 +34,8 @@ curl -s "https://<seu-dominio>/api/dhru-test"
   "ok": true,
   "status": 200,
   "endpointUsed": "https://dhmfserver.com/public/api/index.php",
-  "fieldMapUsed": {
-    "userField": "username",
-    "keyField": "apiaccesskey"
-  },
-  "bodyPreview": "{\"balance\":\"10.00\"}"
+  "bodyPreview": "{\"balance\":\"10.00\"}",
+  "error": null
 }
 ```
 
@@ -54,8 +51,11 @@ curl -s "https://<seu-dominio>/api/dhru/balance"
 
 ```json
 {
+  "ok": true,
+  "status": 200,
   "balance": "10.00",
   "currency": "USD",
+  "error": null,
   "rawPreview": "{\"balance\":\"10.00\",\"currency\":\"USD\"}"
 }
 ```
@@ -72,6 +72,8 @@ curl -s "https://<seu-dominio>/api/dhru/services"
 
 ```json
 {
+  "ok": true,
+  "status": 200,
   "services": [
     {
       "serviceId": "123",
@@ -84,6 +86,7 @@ curl -s "https://<seu-dominio>/api/dhru/services"
       "category": "iPhone"
     }
   ],
+  "error": null,
   "rawPreview": "{...}"
 }
 ```
@@ -106,6 +109,7 @@ curl -s -X POST "https://<seu-dominio>/api/dhru/order" \
   "status": 200,
   "orderId": "987654",
   "message": "Order placed",
+  "error": null,
   "rawPreview": "{...}"
 }
 ```
@@ -126,6 +130,7 @@ curl -s "https://<seu-dominio>/api/dhru/status?orderId=987654"
   "status": 200,
   "orderId": "987654",
   "providerStatus": "Completed",
+  "error": null,
   "rawPreview": "{...}"
 }
 ```
