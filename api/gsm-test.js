@@ -1,3 +1,39 @@
+const http = require('http');
+const https = require('https');
+
+function postForm(url, body, headers) {
+  return new Promise((resolve, reject) => {
+    const client = url.protocol === 'http:' ? http : https;
+    const request = client.request(
+      {
+        method: 'POST',
+        hostname: url.hostname,
+        port: url.port || (url.protocol === 'http:' ? 80 : 443),
+        path: `${url.pathname}${url.search}`,
+        headers,
+      },
+      (response) => {
+        let data = '';
+
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => {
+          data += chunk;
+        });
+        response.on('end', () => {
+          resolve({
+            status: response.statusCode || 500,
+            text: data,
+          });
+        });
+      }
+    );
+
+    request.on('error', reject);
+    request.write(body);
+    request.end();
+  });
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
@@ -15,22 +51,19 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(`${baseUrl}/widget/getServicedetailsIMEI`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: new URLSearchParams({
-        serviceid: 'TEST',
-        chosen: '1',
-        charge: '0',
-      }),
+    const payload = new URLSearchParams({
+      serviceid: 'TEST',
+      chosen: '1',
+      charge: '0',
+    }).toString();
+    const url = new URL(`${baseUrl}/widget/getServicedetailsIMEI`);
+    const { status, text } = await postForm(url, payload, {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Length': Buffer.byteLength(payload),
+      Authorization: `Bearer ${apiKey}`,
     });
 
-    const text = await response.text();
-
-    return res.status(response.status).type('text/plain').send(text);
+    return res.status(status).type('text/plain').send(text);
   } catch (error) {
     return res.status(500).json({
       error: 'Erro ao conectar ao GSM IMEI.',
