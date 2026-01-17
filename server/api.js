@@ -82,6 +82,64 @@ router.get('/services', async (req, res) => {
   }
 });
 
+router.get('/gsm-test', async (req, res) => {
+  const baseUrl = config.baseUrl;
+  const apiKey = config.apiKey;
+
+  if (!baseUrl) {
+    return res.status(500).json({ error: 'GSM_IMEI_BASE_URL não configurado.' });
+  }
+
+  if (!apiKey) {
+    return res.status(500).json({ error: 'GSM_IMEI_API_KEY não configurado.' });
+  }
+
+  const authPlacement =
+    process.env.GSM_IMEI_TEST_AUTH_PLACEMENT || 'authorization_bearer';
+
+  const endpointPath =
+    config.endpoints.serviceDetailsIMEI || '/widget/getServicedetailsIMEI';
+  const url = new URL(endpointPath, baseUrl).toString();
+  const payload = new URLSearchParams({
+    serviceid: '0',
+    chosen: '1',
+    charge: '0',
+  });
+
+  const headers = {
+    Accept: 'application/json, text/plain, */*',
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+
+  if (authPlacement === 'authorization_bearer') {
+    headers.Authorization = `Bearer ${apiKey}`;
+  } else if (authPlacement === 'x_api_key') {
+    headers['X-API-KEY'] = apiKey;
+  } else if (authPlacement === 'body_api_key') {
+    payload.append('api_key', apiKey);
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: payload,
+    });
+
+    const rawText = await response.text();
+    const contentType = response.headers.get('content-type');
+    if (contentType) {
+      res.set('Content-Type', contentType);
+    }
+    return res.status(response.status).send(rawText);
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Falha ao chamar GSM IMEI.',
+      details: error.message,
+    });
+  }
+});
+
 router.get('/services/:id', async (req, res) => {
   const serviceId = normalizeInput(req.params.id);
   if (!validateServiceId(serviceId)) {
