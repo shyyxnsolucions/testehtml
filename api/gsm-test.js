@@ -47,27 +47,14 @@ function requestForm(url, body, headers, timeoutMs = 15000) {
   });
 }
 
-function buildErrorPayload(error, upstream) {
-  const payload = {
-    error: {
-      name: error?.name || 'Error',
-      message: error?.message || 'Unknown error',
-    },
+function buildErrorPayload(error, url) {
+  return {
+    error: true,
+    name: error?.name || 'Error',
+    message: error?.message || 'Unknown error',
+    cause: error?.cause ? String(error.cause) : undefined,
+    url,
   };
-
-  if (error?.cause) {
-    payload.error.cause = String(error.cause);
-  }
-
-  if (upstream) {
-    payload.upstream = {
-      status: upstream.status,
-      headers: upstream.headers || {},
-      bodyPreview: upstream.text ? upstream.text.slice(0, 5000) : '',
-    };
-  }
-
-  return payload;
 }
 
 module.exports = async function handler(req, res) {
@@ -115,13 +102,21 @@ module.exports = async function handler(req, res) {
     const upstream = await requestForm(url, payload, headers);
 
     if (upstream.status >= 400) {
+      res.setHeader('Content-Type', 'application/json');
       return res.status(upstream.status).json(
-        buildErrorPayload(new Error('Upstream request failed'), upstream)
+        buildErrorPayload(new Error('Upstream request failed'), url.toString())
       );
     }
 
-    return res.status(upstream.status).type('text/plain').send(upstream.text);
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(200).json({
+      status: upstream.status,
+      headers: upstream.headers || {},
+      bodyPreview: upstream.text ? upstream.text.slice(0, 5000) : '',
+      url: url.toString(),
+    });
   } catch (error) {
-    return res.status(500).json(buildErrorPayload(error));
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(500).json(buildErrorPayload(error, url.toString()));
   }
 };
