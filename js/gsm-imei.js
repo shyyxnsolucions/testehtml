@@ -1,11 +1,29 @@
 const api = {
-  async getServices() {
+  async requestDhru(payload) {
     const response = await fetch('/api/dhru', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'services' }),
+      body: JSON.stringify(payload),
     });
-    return response.json();
+
+    let data = null;
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = { error: 'Resposta inválida do servidor.' };
+    }
+
+    if (!response.ok) {
+      return {
+        ...data,
+        error: data?.error || 'Falha ao consultar a API.',
+      };
+    }
+
+    return data;
+  },
+  async getServices() {
+    return api.requestDhru({ action: 'services' });
   },
   async getService(id) {
     const data = await api.getServices();
@@ -21,16 +39,11 @@ const api = {
     return { details: service };
   },
   async createOrder(payload) {
-    const response = await fetch('/api/dhru', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'order',
-        serviceId: payload.serviceId,
-        imeiOrSn: payload.imeiOrSn,
-      }),
+    return api.requestDhru({
+      action: 'order',
+      serviceId: payload.serviceId,
+      imeiOrSn: payload.imeiOrSn,
     });
-    return response.json();
   },
 };
 
@@ -87,11 +100,22 @@ const renderServicesPage = async () => {
   const data = await api.getServices();
   const services = data.services || [];
 
-  if (data.stub && notice) {
-    notice.textContent =
-      data.message ||
-      'Endpoint de serviços não configurado. Atualize a configuração do backend.';
-    notice.classList.remove('hidden');
+  if (notice) {
+    if (data.error) {
+      notice.textContent = data.error;
+      notice.classList.remove('hidden');
+      return;
+    }
+
+    if (data.stub) {
+      notice.textContent =
+        data.message ||
+        'Endpoint de serviços não configurado. Atualize a configuração do backend.';
+      notice.classList.remove('hidden');
+    } else if (!services.length) {
+      notice.textContent = 'Nenhum serviço disponível no momento.';
+      notice.classList.remove('hidden');
+    }
   }
 
   const filterOptions = new Set();
