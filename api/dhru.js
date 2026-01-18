@@ -43,8 +43,14 @@ function extractServiceList(payload) {
   if (!payload) return [];
   if (Array.isArray(payload)) return payload;
   if (Array.isArray(payload.services)) return payload.services;
-  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.Services)) return payload.Services;
+  if (Array.isArray(payload.service)) return payload.service;
+  if (Array.isArray(payload.Service)) return payload.Service;
   if (Array.isArray(payload.service_list)) return payload.service_list;
+  if (Array.isArray(payload.ServiceList)) return payload.ServiceList;
+  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.data?.services)) return payload.data.services;
+  if (Array.isArray(payload.data?.service)) return payload.data.service;
   return [];
 }
 
