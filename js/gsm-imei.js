@@ -1,26 +1,35 @@
 const api = {
   async getServices() {
-    const response = await fetch('/api/services');
-    return response.json();
-  },
-  async getService(id) {
-    const response = await fetch(`/api/services/${encodeURIComponent(id)}`);
-    return response.json();
-  },
-  async createOrder(payload) {
-    const response = await fetch('/api/orders', {
+    const response = await fetch('/api/dhru', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ action: 'services' }),
     });
     return response.json();
   },
-  async getOrders() {
-    const response = await fetch('/api/orders');
-    return response.json();
+  async getService(id) {
+    const data = await api.getServices();
+    const services = data.services || [];
+    const service = services.find(
+      (item) => String(item.serviceId ?? item.serviceid ?? item.id) === String(id)
+    );
+
+    if (!service) {
+      return { error: 'Serviço não encontrado.', details: null };
+    }
+
+    return { details: service };
   },
-  async getOrder(id) {
-    const response = await fetch(`/api/orders/${encodeURIComponent(id)}`);
+  async createOrder(payload) {
+    const response = await fetch('/api/dhru', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'order',
+        serviceId: payload.serviceId,
+        imeiOrSn: payload.imeiOrSn,
+      }),
+    });
     return response.json();
   },
 };
@@ -51,7 +60,7 @@ const createServiceCard = (service) => {
   const actions = document.createElement('div');
   actions.className = 'service-card__meta';
   const detailLink = document.createElement('a');
-  const serviceId = service.serviceid || service.id;
+  const serviceId = service.serviceId || service.serviceid || service.id;
   detailLink.className = 'btn btn--ghost';
   detailLink.href = `service.html?id=${encodeURIComponent(serviceId)}`;
   detailLink.textContent = 'Detalhes';
@@ -170,7 +179,7 @@ const renderOrderForm = async () => {
   serviceSelect.innerHTML = '<option value="">Selecione</option>';
   services.forEach((service) => {
     const option = document.createElement('option');
-    option.value = service.serviceid || service.id;
+    option.value = service.serviceId || service.serviceid || service.id;
     option.textContent = service.name || service.title || option.value;
     if (params.get('serviceId') === option.value) {
       option.selected = true;
@@ -185,7 +194,7 @@ const renderOrderForm = async () => {
 
     const payload = {
       serviceId: serviceSelect.value,
-      imei: inputField.value,
+      imeiOrSn: inputField.value,
     };
 
     const result = await api.createOrder(payload);
@@ -196,38 +205,14 @@ const renderOrderForm = async () => {
       return;
     }
 
-    status.textContent = `Pedido criado: ${result.order?.id}`;
+    const createdOrderId = result.orderId || result.order?.id || '-';
+    const orderMessage = result.message ? ` (${result.message})` : '';
+    status.textContent = `Pedido criado: ${createdOrderId}${orderMessage}`;
     status.classList.remove('status--error');
   });
 };
 
-const renderHistory = async () => {
-  const list = document.querySelector('[data-history-list]');
-  if (!list) return;
-
-  const renderOrders = async () => {
-    const data = await api.getOrders();
-    list.innerHTML = '';
-
-    (data.orders || []).forEach((order) => {
-      const card = document.createElement('article');
-      card.className = 'service-card';
-      card.innerHTML = `
-        <h3>Pedido ${order.id}</h3>
-        <p>Serviço: ${order.serviceId}</p>
-        <p>Identificador: ${order.input}</p>
-        <p>Status: ${order.status}</p>
-        <small>${new Date(order.createdAt).toLocaleString('pt-BR')}</small>
-      `;
-      list.append(card);
-    });
-  };
-
-  await renderOrders();
-  setInterval(renderOrders, 15000);
-};
 
 renderServicesPage();
 renderServiceDetails();
 renderOrderForm();
-renderHistory();
