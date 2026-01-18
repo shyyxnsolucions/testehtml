@@ -4,18 +4,33 @@
 
 Defina estas variáveis no projeto:
 
-- `DHRU_BASE_URL=https://dhmfserver.com/public`
-- `DHRU_USER=supracell47@gmail.com`
+- `DHRU_URL=https://dhmfserver.com/public`
+- `DHRU_USERNAME=supracell47@gmail.com`
 - `DHRU_API_KEY=***` (já existe no ambiente, não versionar)
 - `DHRU_TIMEOUT_MS=10000`
 
-## Endpoints internos
+## Endpoint interno
 
-- `GET /api/dhru/test`
-- `GET /api/dhru/balance`
-- `GET /api/dhru/services`
-- `POST /api/dhru/order`
-- `GET /api/dhru/status?orderId=...`
+- `POST /api/dhru`
+
+## Rotas a manter/remover (limite Vercel Hobby)
+
+Para ficar dentro do limite de Serverless Functions no plano Hobby:
+
+- **Manter:** apenas `api/dhru.js` (endpoint `/api/dhru`).
+- **Remover:** quaisquer rotas antigas em `api/dhru/*` e `api/gsm/*` (incluindo testes/diagnósticos).
+
+## Formato do body
+
+Sempre envie JSON com o campo `action`:
+
+```json
+{
+  "action": "services"
+}
+```
+
+Você pode enviar parâmetros adicionais junto com o `action` (ou dentro de `params`).
 
 ## Exemplos
 
@@ -24,7 +39,9 @@ Defina estas variáveis no projeto:
 **Request**
 
 ```bash
-curl -s "https://<seu-dominio>/api/dhru/test"
+curl -s -X POST "https://<seu-dominio>/api/dhru" \
+  -H "Content-Type: application/json" \
+  -d '{"action":"test"}'
 ```
 
 **Response (exemplo)**
@@ -44,7 +61,9 @@ curl -s "https://<seu-dominio>/api/dhru/test"
 **Request**
 
 ```bash
-curl -s "https://<seu-dominio>/api/dhru/balance"
+curl -s -X POST "https://<seu-dominio>/api/dhru" \
+  -H "Content-Type: application/json" \
+  -d '{"action":"balance"}'
 ```
 
 **Response (exemplo)**
@@ -65,7 +84,9 @@ curl -s "https://<seu-dominio>/api/dhru/balance"
 **Request**
 
 ```bash
-curl -s "https://<seu-dominio>/api/dhru/services"
+curl -s -X POST "https://<seu-dominio>/api/dhru" \
+  -H "Content-Type: application/json" \
+  -d '{"action":"services"}'
 ```
 
 **Response (exemplo)**
@@ -96,9 +117,9 @@ curl -s "https://<seu-dominio>/api/dhru/services"
 **Request**
 
 ```bash
-curl -s -X POST "https://<seu-dominio>/api/dhru/order" \
+curl -s -X POST "https://<seu-dominio>/api/dhru" \
   -H "Content-Type: application/json" \
-  -d '{"serviceId":"123","imeiOrSn":"012345678901234"}'
+  -d '{"action":"order","serviceId":"123","imeiOrSn":"012345678901234"}'
 ```
 
 **Response (exemplo)**
@@ -119,7 +140,9 @@ curl -s -X POST "https://<seu-dominio>/api/dhru/order" \
 **Request**
 
 ```bash
-curl -s "https://<seu-dominio>/api/dhru/status?orderId=987654"
+curl -s -X POST "https://<seu-dominio>/api/dhru" \
+  -H "Content-Type: application/json" \
+  -d '{"action":"status","orderId":"987654"}'
 ```
 
 **Response (exemplo)**
@@ -130,6 +153,29 @@ curl -s "https://<seu-dominio>/api/dhru/status?orderId=987654"
   "status": 200,
   "orderId": "987654",
   "providerStatus": "Completed",
+  "error": null,
+  "rawPreview": "{...}"
+}
+```
+
+### Ações genéricas (qualquer action do DHRU)
+
+**Request**
+
+```bash
+curl -s -X POST "https://<seu-dominio>/api/dhru" \
+  -H "Content-Type: application/json" \
+  -d '{"action":"<action_dhru>","params":{"foo":"bar"}}'
+```
+
+**Response (exemplo)**
+
+```json
+{
+  "ok": true,
+  "status": 200,
+  "action": "<action_dhru>",
+  "data": {},
   "error": null,
   "rawPreview": "{...}"
 }
